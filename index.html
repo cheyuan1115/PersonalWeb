@@ -1,108 +1,85 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>藤指美麗│個人星象運勢</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>藤指美麗│星座運勢占卜</title>
   <style>
     body {
       font-family: "Noto Sans TC", sans-serif;
-      background: #fdfcf7;
+      background: #fdfbf4;
       color: #333;
       margin: 0;
       padding: 1em;
     }
-    .card {
+    .container {
+      max-width: 480px;
+      margin: auto;
       background: #fff;
       border-radius: 16px;
-      box-shadow: 0 6px 12px rgba(0,0,0,0.08);
-      padding: 2em;
-      max-width: 500px;
-      margin: auto;
+      padding: 1.5em;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
       text-align: center;
     }
     h1 {
-      color: #4a7c12;
       font-size: 1.6em;
+      color: #4e7309;
+      margin-bottom: 1em;
     }
     .result {
-      margin: 1em 0;
+      margin-top: 1em;
+      line-height: 1.8;
       font-size: 1.05em;
       white-space: pre-wrap;
-      line-height: 1.8;
     }
-    .button {
-      background: #799c25;
+    .btn {
+      background-color: #799a2f;
       color: white;
       border: none;
       border-radius: 8px;
       padding: 0.8em 1.5em;
-      font-size: 1em;
       margin: 1em 0;
+      font-size: 1em;
       cursor: pointer;
-      transition: transform 0.2s ease;
+      transition: background-color 0.3s;
     }
-    .button:hover {
-      transform: scale(1.05);
+    .btn:hover {
+      background-color: #688820;
     }
-    .flip-card {
-      perspective: 1000px;
-      margin: 1em auto;
-      width: 200px;
-      height: 300px;
-    }
-    .flip-inner {
+    .card {
       width: 100%;
-      height: 100%;
-      transition: transform 0.8s;
-      transform-style: preserve-3d;
-      position: relative;
-    }
-    .flipped .flip-inner {
-      transform: rotateY(180deg);
-    }
-    .flip-front, .flip-back {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      backface-visibility: hidden;
+      max-width: 280px;
+      margin: auto;
       border-radius: 12px;
       overflow: hidden;
+      box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+      animation: fadeIn 0.5s ease;
     }
-    .flip-front {
-      background: #ccc;
-    }
-    .flip-back {
-      transform: rotateY(180deg);
-      background: #fff5;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 1em;
+    .card img {
+      width: 100%;
+      height: auto;
+      display: block;
     }
     .footer {
       margin-top: 2em;
-      font-size: 0.9em;
-      color: #999;
+      font-size: 0.85em;
+      color: #aaa;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
     }
   </style>
 </head>
 <body>
-  <div class="card">
-    <h1>🌞 今日個人星象運勢</h1>
-    <div id="astro" class="result"> 讀取中...</div>
+  <div class="container">
+    <h1>🌞 今日個人星訊運勢</h1>
+    <div id="astro" class="result">讀取失敗，請繼續努力。</div>
 
-    <button class="button" onclick="drawTarot()">🌊 抽一張塔羅牌</button>
-    <div class="flip-card" id="tarotCard" style="display:none">
-      <div class="flip-inner" id="tarotInner">
-        <div class="flip-front">
-          <img src="https://i.imgur.com/f3GrJbM.png" width="100%" height="100%">
-        </div>
-        <div class="flip-back" id="tarotResult"></div>
-      </div>
-    </div>
+    <button class="btn" onclick="drawTarot()">🌊 抽一張塔羅牌</button>
+    <div id="tarot" class="result"></div>
 
-    <button class="button" onclick="drawLucky()">🌟 抽今日幸運節</button>
+    <button class="btn" onclick="drawLucky()">🌟 抽今日幸運籤</button>
     <div id="lucky" class="result"></div>
 
     <div class="footer">由「藤指美麗」提供占星香氣指徑</div>
@@ -111,50 +88,73 @@
   <script>
     const params = new URLSearchParams(window.location.search);
     const userId = params.get("userId");
-    const baseUrl = "https://script.google.com/macros/s/AKfycbwDpA8lPcvc4UXOKibzWd__83JyY_jKWzEVm1Z-9734KIJw3gdpqlbs78DZ6Rixdzjf0Q/exec";
+
+    const baseAstro = "https://script.google.com/macros/s/AKfycbwDpA8lPcvc4UXOKibzWd__83JyY_jKWzEVm1Z-9734KIJw3gdpqlbs78DZ6Rixdzjf0Q/exec";
+    const baseDraw = baseAstro;
 
     function fetchAstro() {
-      if (!userId) return document.getElementById("astro").innerHTML = "⚠️ 缺少使用者資訊";
-      fetch(`${baseUrl}?userId=${userId}`)
+      if (!userId) return;
+      fetch(`${baseAstro}?userId=${userId}`)
         .then(res => res.json())
         .then(data => {
-          document.getElementById("astro").innerHTML = data.report || "無法取得星象資料";
+          if (data.report) {
+            document.getElementById("astro").innerHTML = data.report.replace(/\n/g, "<br>");
+          }
         })
         .catch(() => {
-          document.getElementById("astro").innerHTML = "⚠️ 讀取失敗，請稍後再試";
+          document.getElementById("astro").innerText = "讀取失敗，請繼續努力。";
         });
     }
 
     function drawTarot() {
-      const card = document.getElementById("tarotCard");
-      const inner = document.getElementById("tarotInner");
-      const result = document.getElementById("tarotResult");
-      card.style.display = "block";
-      inner.classList.remove("flipped");
-      result.innerHTML = "正在抽牌...";
-      setTimeout(() => {
-        fetch(`${baseUrl}?mode=tarot`)
-          .then(res => res.json())
-          .then(data => {
-            result.innerHTML = `<div><strong>${data.name}</strong><br><br>"【${data.quote}】"<br><br>香氣推薦：${data.scent}</div>`;
-            inner.classList.add("flipped");
-          })
-          .catch(() => result.innerHTML = "抽牌失敗，請稍後再試");
-      }, 300);
+      if (!userId) return;
+      const tarotBox = document.getElementById("tarot");
+      tarotBox.innerHTML = '<img src="https://i.imgur.com/9xvRZFS.gif" class="card">';
+      fetch(`${baseDraw}?userId=${userId}&draw=tarot`)
+        .then(res => res.json())
+        .then(data => {
+          setTimeout(() => {
+            tarotBox.innerHTML = `
+              <div class="card">
+                <img src="${data.img}" alt="tarot">
+                <div style="padding:1em;text-align:left;">
+                  <strong>🔹 ${data.tarot}</strong><br>
+                  🔹 ${data.quote}<br>
+                  🌿 ${data.scent}<br>
+                  🧘 ${data.usage}
+                </div>
+              </div>`;
+          }, 1200);
+        })
+        .catch(() => {
+          tarotBox.innerText = "抽牌失敗，請繼續努力。";
+        });
     }
 
     function drawLucky() {
-      const lucky = document.getElementById("lucky");
-      lucky.innerHTML = "…讀取中...";
-      fetch(`${baseUrl}?mode=lucky`)
+      if (!userId) return;
+      const luckyBox = document.getElementById("lucky");
+      luckyBox.innerHTML = '<img src="https://i.imgur.com/MNcvU9C.gif" class="card">';
+      fetch(`${baseDraw}?userId=${userId}&draw=lucky`)
         .then(res => res.json())
         .then(data => {
-          lucky.innerHTML = `<div><strong>【${data.quote}】</strong><br><br>香氣推薦：${data.scent}</div>`;
+          setTimeout(() => {
+            luckyBox.innerHTML = `
+              <div class="card">
+                <img src="${data.img}" alt="lucky">
+                <div style="padding:1em;text-align:left;">
+                  🌟 ${data.quote}<br>
+                  🌿 ${data.scent}
+                </div>
+              </div>`;
+          }, 1200);
         })
-        .catch(() => lucky.innerHTML = "⚠️ 幸運節抽取失敗");
+        .catch(() => {
+          luckyBox.innerText = "抽籤失敗，請繼續努力。";
+        });
     }
 
-    fetchAstro();
+    window.onload = fetchAstro;
   </script>
 </body>
 </html>
