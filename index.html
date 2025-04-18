@@ -77,7 +77,8 @@
         document.getElementById("astro").innerHTML = "⚠️ 缺少使用者資訊";
         return;
       }
-      fetch(`${baseUrl}?userId=${userId}`)
+      fetch(`${baseUrl}?userId=${userId}&mode=json`)
+
         .then(res => res.json())
         .then(data => {
           document.getElementById("astro").innerHTML = data.report || "無法讀取您的運勢";
