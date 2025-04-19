@@ -62,13 +62,13 @@
 <body>
   <div class="container">
     <h1>☀️ 今日個人星訊運勢</h1>
-    <div id="astro" class="result">⚠️ 讀取失敗，請繼續努力。</div>
+    <div id="astro" class="result">📖 占卜中，請稍候...</div>
 
     <button class="btn" onclick="drawTarot()">🌊 抽一張塔羅牌</button>
-    <div id="tarot" class="result">⚠️ 抽牌失敗</div>
+    <div id="tarot" class="result"></div>
 
     <button class="btn" onclick="drawLucky()">🌟 抽今日幸運節</button>
-    <div id="lucky" class="result">⚠️ 幸運節抽取失敗</div>
+    <div id="lucky" class="result"></div>
 
     <div class="footer">由「藤指美麗」提供占星香氣指徑</div>
   </div>
@@ -92,7 +92,7 @@
         }
       })
       .catch(() => {
-        document.getElementById("astro").innerHTML = "⚠️ 讀取失敗，請繼續努力。";
+        document.getElementById("astro").innerHTML = "📖 占卜中，請稍候...";
       });
   }
 
