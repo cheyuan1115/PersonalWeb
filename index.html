@@ -61,13 +61,13 @@
 </head>
 <body>
   <div class="container">
-    <h1>☀️ 今日個人星訊運勢</h1>
+    <h1>☀️ 今日個人星座運勢</h1>
     <div id="astro" class="result">📖 占卜中，請稍候...</div>
 
     <button class="btn" onclick="drawTarot()">🌊 抽一張塔羅牌</button>
     <div id="tarot" class="result"></div>
 
-    <button class="btn" onclick="drawLucky()">🌟 抽今日幸運節</button>
+    <button class="btn" onclick="drawLucky()">🌟 抽今日幸運籤</button>
     <div id="lucky" class="result"></div>
 
     <div class="footer">由「藤指美麗」提供占星香氣指徑</div>
@@ -126,7 +126,7 @@
   function drawLucky() {
     if (!userId) return;
     const luckyEl = document.getElementById("lucky");
-    luckyEl.innerHTML = "☕ 抽節氣中...";
+    luckyEl.innerHTML = "☕ 抽籤中...";
     fetch(`${baseDraw}?userId=${userId}&mode=lucky`)
       .then(res => res.json())
       .then(data => {
