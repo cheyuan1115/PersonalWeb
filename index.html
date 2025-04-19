@@ -6,14 +6,16 @@
   <title>藤指美麗│星座首頁</title>
   <style>
     body {
-      background: #fefcf6;
+      background-image: url('https://i.imgur.com/JhZSPKH.jpg'); /* 紙張紋理背景 */
+      background-size: cover;
+      background-attachment: fixed;
       font-family: "Noto Sans TC", sans-serif;
       margin: 0;
       padding: 2em;
       color: #333;
     }
     .container {
-      background: white;
+      background: rgba(255, 255, 255, 0.92);
       max-width: 480px;
       margin: auto;
       padding: 2em;
@@ -44,6 +46,15 @@
       color: #aaa;
       margin-top: 2em;
     }
+    .animate-draw {
+      animation: fadeShake 1.2s ease;
+    }
+    @keyframes fadeShake {
+      0% { opacity: 0; transform: rotate(0deg); }
+      30% { opacity: 0.5; transform: rotate(-3deg); }
+      60% { opacity: 0.8; transform: rotate(3deg); }
+      100% { opacity: 1; transform: rotate(0deg); }
+    }
   </style>
 </head>
 <body>
@@ -60,62 +71,79 @@
     <div class="footer">由「藤指美麗」提供占星香氣指徑</div>
   </div>
 
-  <script>
-    const params = new URLSearchParams(window.location.search);
-    const userId = params.get("userId");
+  <audio id="cardSound" src="https://freesound.org/data/previews/567/567583_902047-lq.mp3" preload="auto"></audio>
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const userId = params.get("userId");
+  const baseAstro = "https://script.google.com/macros/s/AKfycbwDpA8lPcvc4UXOKibzWd__83JyY_jKWzEVm1Z-9734KIJw3gdpqlbs78DZ6Rixdzjf0Q/exec";
+  const baseDraw = baseAstro;
 
-    const baseAstro = "https://script.google.com/macros/s/AKfycbwDpA8lPcvc4UXOKibzWd__83JyY_jKWzEVm1Z-9734KIJw3gdpqlbs78DZ6Rixdzjf0Q/exec";
-    const baseDraw = baseAstro;
+  function fetchAstro() {
+    if (!userId) return;
+    fetch(`${baseAstro}?userId=${userId}&mode=json`)
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.report) {
+          document.getElementById("astro").innerHTML = data.report.replace(/\n/g, "<br>");
+        } else {
+          document.getElementById("astro").innerHTML = "⚠️ 尚未產生今日運勢";
+        }
+      })
+      .catch(() => {
+        document.getElementById("astro").innerHTML = "⚠️ 讀取失敗，請繼續努力。";
+      });
+  }
 
-    function fetchAstro() {
-      if (!userId) return;
-      fetch(`${baseAstro}?userId=${userId}&mode=json`)
-        .then(res => res.json())
-        .then(data => {
-          if (data && data.report) {
-            document.getElementById("astro").innerHTML = data.report.replace(/\n/g, "<br>");
-          } else {
-            document.getElementById("astro").innerHTML = "⚠️ 尚未產生今日運勢";
+  function drawTarot() {
+    if (!userId) return;
+    const tarotEl = document.getElementById("tarot");
+    tarotEl.classList.remove("animate-draw");
+    tarotEl.innerHTML = "🔮 正在抽牌...";
+    document.getElementById("cardSound").play(); // 播放音效
+
+    fetch(`${baseDraw}?userId=${userId}&mode=tarot`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.content) {
+          tarotEl.innerHTML = data.content.replace(/\n/g, "<br>");
+          tarotEl.classList.add("animate-draw");
+        } else {
+          tarotEl.innerHTML = "⚠️ 尚未抽牌";
+        }
+      })
+      .catch(() => {
+        tarotEl.innerHTML = "⚠️ 抽牌失敗";
+      });
+  }
+
+  function drawLucky() {
+    if (!userId) return;
+    const luckyEl = document.getElementById("lucky");
+    luckyEl.innerHTML = "☕ 抽節氣中...";
+    fetch(`${baseDraw}?userId=${userId}&mode=lucky`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.content) {
+          const lines = data.content.split("\n");
+          const textLines = lines.filter(l => !l.startsWith("🖼️ 圖片："));
+          const imageLine = lines.find(l => l.startsWith("🖼️ 圖片："));
+          const imageUrl = imageLine?.replace("🖼️ 圖片：", "").trim();
+
+          let html = textLines.join("<br>");
+          if (imageUrl) {
+            html += `<br><br><img src="${imageUrl}" style="max-width:100%;border-radius:12px;">`;
           }
-        })
-        .catch(() => {
-          document.getElementById("astro").innerHTML = "⚠️ 讀取失敗，請繼續努力。";
-        });
-    }
+          luckyEl.innerHTML = html;
+        } else {
+          luckyEl.innerHTML = "⚠️ 尚未抽到幸運節";
+        }
+      })
+      .catch(() => {
+        luckyEl.innerHTML = "⚠️ 幸運節抽取失敗";
+      });
+  }
 
-    function drawTarot() {
-      if (!userId) return;
-      document.getElementById("tarot").innerHTML = "☕ 抽牌中...";
-      fetch(`${baseDraw}?userId=${userId}&mode=tarot`)
-        .then(res => res.json())
-        .then(data => {
-          if (data.content)
-            document.getElementById("tarot").innerHTML = data.content.replace(/\n/g, "<br>");
-          else
-            document.getElementById("tarot").innerHTML = "⚠️ 尚未抽牌";
-        })
-        .catch(() => {
-          document.getElementById("tarot").innerHTML = "⚠️ 抽牌失敗";
-        });
-    }
-
-    function drawLucky() {
-      if (!userId) return;
-      document.getElementById("lucky").innerHTML = "☕ 抽節氣中...";
-      fetch(`${baseDraw}?userId=${userId}&mode=lucky`)
-        .then(res => res.json())
-        .then(data => {
-          if (data.content)
-            document.getElementById("lucky").innerHTML = data.content.replace(/\n/g, "<br>");
-          else
-            document.getElementById("lucky").innerHTML = "⚠️ 尚未產生幸運節";
-        })
-        .catch(() => {
-          document.getElementById("lucky").innerHTML = "⚠️ 幸運節抽取失敗";
-        });
-    }
-
-    fetchAstro();
-  </script>
+  fetchAstro();
+</script>
 </body>
 </html>
