@@ -97,26 +97,31 @@
   }
 
   function drawTarot() {
-    if (!userId) return;
-    const tarotEl = document.getElementById("tarot");
-    tarotEl.classList.remove("animate-draw");
-    tarotEl.innerHTML = "🔮 正在抽牌...";
-    document.getElementById("cardSound").play(); // 播放音效
+  if (!userId) return;
+  const tarotEl = document.getElementById("tarot");
+  tarotEl.classList.remove("animate-draw");
+  tarotEl.innerHTML = "🔮 正在抽牌...";
+  document.getElementById("cardSound").play(); // 播放音效
 
-    fetch(`${baseDraw}?userId=${userId}&mode=tarot`)
-      .then(res => res.json())
-      .then(data => {
-        if (data.content) {
-          tarotEl.innerHTML = data.content.replace(/\n/g, "<br>");
-          tarotEl.classList.add("animate-draw");
-        } else {
-          tarotEl.innerHTML = "⚠️ 尚未抽牌";
+  fetch(`${baseDraw}?userId=${userId}&mode=tarot`)
+    .then(res => res.json())
+    .then(data => {
+      if (data.content) {
+        let html = data.content.replace(/\n/g, "<br>");
+        if (data.image) {
+          html += `<br><br><img src="${data.image}" style="max-width:100%;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,0.2);">`;
         }
-      })
-      .catch(() => {
-        tarotEl.innerHTML = "⚠️ 抽牌失敗";
-      });
-  }
+        tarotEl.innerHTML = html;
+        tarotEl.classList.add("animate-draw");
+      } else {
+        tarotEl.innerHTML = "⚠️ 尚未抽牌";
+      }
+    })
+    .catch(() => {
+      tarotEl.innerHTML = "⚠️ 抽牌失敗";
+    });
+}
+
 
   function drawLucky() {
     if (!userId) return;
