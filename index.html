@@ -3,73 +3,59 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>藤指美麗│個人星象運勢</title>
+  <title>藤指美麗│星座首頁</title>
   <style>
     body {
+      background: #fefcf6;
       font-family: "Noto Sans TC", sans-serif;
-      background: #fcfbf5;
-      color: #333;
       margin: 0;
-      padding: 1.5em;
+      padding: 2em;
+      color: #333;
     }
     .container {
-      max-width: 500px;
+      background: white;
+      max-width: 480px;
       margin: auto;
-      background: #fff;
       padding: 2em;
       border-radius: 16px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      text-align: center;
     }
     h1 {
-      font-size: 1.6em;
-      color: #5d8c2c;
-      text-align: center;
-    }
-    .result {
-      margin: 1em 0;
-      line-height: 1.7;
-      white-space: pre-wrap;
-      text-align: center;
+      color: #5a7f2c;
     }
     .btn {
-      display: block;
-      width: 100%;
-      padding: 1em;
-      font-size: 1em;
-      background: #7f9d32;
-      color: white;
+      background: #87a636;
       border: none;
-      border-radius: 10px;
-      margin-top: 1em;
+      border-radius: 8px;
+      padding: 1em 2em;
+      margin: 1em 0;
+      color: white;
+      font-size: 1.1em;
       cursor: pointer;
     }
-    .btn:hover {
-      background: #688428;
-    }
-    img {
-      display: block;
-      margin: 1em auto;
-      max-width: 80%;
+    .result {
+      margin-top: 1em;
+      white-space: pre-wrap;
+      line-height: 1.6;
     }
     .footer {
-      font-size: 0.8em;
+      font-size: 0.9em;
       color: #aaa;
-      text-align: center;
       margin-top: 2em;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>🌞 今日個人星象運勢</h1>
-    <div id="astro" class="result">讀取失敗，請繼續努力。</div>
+    <h1>☀️ 今日個人星訊運勢</h1>
+    <div id="astro" class="result">⚠️ 讀取失敗，請繼續努力。</div>
 
     <button class="btn" onclick="drawTarot()">🌊 抽一張塔羅牌</button>
-    <img id="tarotImage" src="" style="display:none">
-    <div id="tarot" class="result"></div>
+    <div id="tarot" class="result">⚠️ 抽牌失敗</div>
 
     <button class="btn" onclick="drawLucky()">🌟 抽今日幸運節</button>
-    <div id="lucky" class="result"></div>
+    <div id="lucky" class="result">⚠️ 幸運節抽取失敗</div>
 
     <div class="footer">由「藤指美麗」提供占星香氣指徑</div>
   </div>
@@ -86,9 +72,8 @@
       fetch(`${baseAstro}?userId=${userId}`)
         .then(res => res.json())
         .then(data => {
-          if (data.report) {
+          if (data.report)
             document.getElementById("astro").innerHTML = data.report.replace(/\n/g, "<br>");
-          }
         })
         .catch(() => {
           document.getElementById("astro").innerHTML = "⚠️ 讀取失敗，請繼續努力。";
@@ -96,30 +81,27 @@
     }
 
     function drawTarot() {
-      const image = document.getElementById("tarotImage");
-      image.src = "https://i.imgur.com/V1YHdvU.gif";
-      image.style.display = "block";
-      document.getElementById("tarot").innerHTML = "占卜中...";
-      fetch(`${baseDraw}?userId=${userId}&draw=tarot`)
+      if (!userId) return;
+      document.getElementById("tarot").innerHTML = "☕ 抽牌中...";
+      fetch(`${baseDraw}?userId=${userId}&mode=tarot`)
         .then(res => res.json())
         .then(data => {
-          setTimeout(() => {
-            image.style.display = "none";
-            document.getElementById("tarot").innerHTML = data.content || "⚠️ 抽牌失敗";
-          }, 2000);
+          if (data.content)
+            document.getElementById("tarot").innerHTML = data.content.replace(/\n/g, "<br>");
         })
         .catch(() => {
-          image.style.display = "none";
           document.getElementById("tarot").innerHTML = "⚠️ 抽牌失敗";
         });
     }
 
     function drawLucky() {
-      document.getElementById("lucky").innerHTML = "準備中...";
-      fetch(`${baseDraw}?userId=${userId}&draw=lucky`)
+      if (!userId) return;
+      document.getElementById("lucky").innerHTML = "☕ 抽節經...";
+      fetch(`${baseDraw}?userId=${userId}&mode=lucky`)
         .then(res => res.json())
         .then(data => {
-          document.getElementById("lucky").innerHTML = data.content || "⚠️ 幸運節抽取失敗";
+          if (data.content)
+            document.getElementById("lucky").innerHTML = data.content.replace(/\n/g, "<br>");
         })
         .catch(() => {
           document.getElementById("lucky").innerHTML = "⚠️ 幸運節抽取失敗";
