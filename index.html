@@ -130,21 +130,15 @@
     fetch(`${baseDraw}?userId=${userId}&mode=lucky`)
       .then(res => res.json())
       .then(data => {
-        if (data.content) {
-          const lines = data.content.split("\n");
-          const textLines = lines.filter(l => !l.startsWith("🖼️ 圖片："));
-          const imageLine = lines.find(l => l.startsWith("🖼️ 圖片："));
-          const imageUrl = imageLine?.replace("🖼️ 圖片：", "").trim();
-
-          let html = textLines.join("<br>");
-          if (imageUrl) {
-            html += `<br><br><img src="${imageUrl}" style="max-width:100%;border-radius:12px;">`;
-          }
-          luckyEl.innerHTML = html;
-        } else {
-          luckyEl.innerHTML = "⚠️ 尚未抽到幸運節";
-        }
-      })
+       if (data.content) {
+        // 僅顯示文字內容，不解析圖片
+        luckyEl.innerHTML = data.content
+          .replace(/🖼️ 圖片：.*/, '') // 移除圖片行
+          .replace(/\n/g, "<br>");
+      } else {
+        luckyEl.innerHTML = "⚠️ 尚未抽到幸運籤";
+      }
+    })
       .catch(() => {
         luckyEl.innerHTML = "⚠️ 幸運節抽取失敗";
       });
