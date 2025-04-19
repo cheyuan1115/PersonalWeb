@@ -69,11 +69,14 @@
 
     function fetchAstro() {
       if (!userId) return;
-      fetch(`${baseAstro}?userId=${userId}`)
+      fetch(`${baseAstro}?userId=${userId}&mode=json`)
         .then(res => res.json())
         .then(data => {
-          if (data.report)
+          if (data && data.report) {
             document.getElementById("astro").innerHTML = data.report.replace(/\n/g, "<br>");
+          } else {
+            document.getElementById("astro").innerHTML = "⚠️ 尚未產生今日運勢";
+          }
         })
         .catch(() => {
           document.getElementById("astro").innerHTML = "⚠️ 讀取失敗，請繼續努力。";
@@ -88,6 +91,8 @@
         .then(data => {
           if (data.content)
             document.getElementById("tarot").innerHTML = data.content.replace(/\n/g, "<br>");
+          else
+            document.getElementById("tarot").innerHTML = "⚠️ 尚未抽牌";
         })
         .catch(() => {
           document.getElementById("tarot").innerHTML = "⚠️ 抽牌失敗";
@@ -96,12 +101,14 @@
 
     function drawLucky() {
       if (!userId) return;
-      document.getElementById("lucky").innerHTML = "☕ 抽節經...";
+      document.getElementById("lucky").innerHTML = "☕ 抽節氣中...";
       fetch(`${baseDraw}?userId=${userId}&mode=lucky`)
         .then(res => res.json())
         .then(data => {
           if (data.content)
             document.getElementById("lucky").innerHTML = data.content.replace(/\n/g, "<br>");
+          else
+            document.getElementById("lucky").innerHTML = "⚠️ 尚未產生幸運節";
         })
         .catch(() => {
           document.getElementById("lucky").innerHTML = "⚠️ 幸運節抽取失敗";
