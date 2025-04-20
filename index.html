@@ -41,12 +41,45 @@
       color: #aaa;
       margin-top: 2em;
     }
+
+    form input, form textarea {
+      width: 100%;
+      padding: 0.8em;
+      margin-bottom: 1em;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 1em;
+    }
+
+    .btn {
+      background: #87a636;
+      border: none;
+      border-radius: 8px;
+      padding: 1em 2em;
+      margin: 1em 0;
+      color: white;
+      font-size: 1.1em;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>☀️ 今日個人星座運勢</h1>
     <div id="astro" class="result">📖 占卜中，請稍候...</div>
+
+    <hr style="margin: 2em 0;">
+
+    <h2>💌 留言給藤指美麗</h2>
+    <form id="contactForm">
+      <input type="text" name="name" placeholder="您的姓名" required />
+      <input type="email" name="email" placeholder="您的 Email" required />
+      <textarea name="message" rows="5" placeholder="請留下您想詢問的問題或合作想法..." required></textarea>
+      <button class="btn" type="submit">送出留言</button>
+    </form>
+    <div id="formStatus" class="result"></div>
+
     <div class="footer">由「藤指美麗」提供占星香氣指徑</div>
   </div>
 
@@ -73,6 +106,24 @@
     }
 
     fetchAstro();
+
+    document.getElementById("contactForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const form = e.target;
+      const data = new URLSearchParams(new FormData(form));
+      fetch("https://script.google.com/macros/s/AKfycbyiPM1VwAzAazP8jcElLO5pqUln5D_KmLV4sjYSz2E8WyLbwT6HglSgJq0GSb0ozW3_/exec", {
+        method: "POST",
+        body: data
+      })
+        .then(res => res.text())
+        .then(msg => {
+          document.getElementById("formStatus").innerHTML = "✅ 留言已送出，感謝你！";
+          form.reset();
+        })
+        .catch(() => {
+          document.getElementById("formStatus").innerHTML = "⚠️ 發送失敗，請稍後再試";
+        });
+    });
   </script>
 </body>
 </html>
