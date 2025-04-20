@@ -1,20 +1,20 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>藤指美麗│星座首頁</title>
   <style>
     body {
-  background-image: url('https://images.pexels.com/photos/32237/pexels-photo.jpg');
-  background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
-  font-family: "Noto Sans TC", sans-serif;
-  margin: 0;
-  padding: 2em;
-  color: #333;
-}
+      background-image: url('https://images.pexels.com/photos/32237/pexels-photo.jpg');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      font-family: "Noto Sans TC", sans-serif;
+      margin: 0;
+      padding: 2em;
+      color: #333;
+    }
 
     .container {
       background: rgba(255, 255, 255, 0.92);
@@ -25,37 +25,21 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.08);
       text-align: center;
     }
+
     h1 {
       color: #5a7f2c;
     }
-    .btn {
-      background: #87a636;
-      border: none;
-      border-radius: 8px;
-      padding: 1em 2em;
-      margin: 1em 0;
-      color: white;
-      font-size: 1.1em;
-      cursor: pointer;
-    }
+
     .result {
       margin-top: 1em;
       white-space: pre-wrap;
       line-height: 1.6;
     }
+
     .footer {
       font-size: 0.9em;
       color: #aaa;
       margin-top: 2em;
-    }
-    .animate-draw {
-      animation: fadeShake 1.2s ease;
-    }
-    @keyframes fadeShake {
-      0% { opacity: 0; transform: rotate(0deg); }
-      30% { opacity: 0.5; transform: rotate(-3deg); }
-      60% { opacity: 0.8; transform: rotate(3deg); }
-      100% { opacity: 1; transform: rotate(0deg); }
     }
   </style>
 </head>
@@ -63,88 +47,32 @@
   <div class="container">
     <h1>☀️ 今日個人星座運勢</h1>
     <div id="astro" class="result">📖 占卜中，請稍候...</div>
-
-    <button class="btn" onclick="drawTarot()">🌊 抽一張塔羅牌</button>
-    <div id="tarot" class="result"></div>
-
-    <button class="btn" onclick="drawLucky()">🌟 抽今日幸運籤</button>
-    <div id="lucky" class="result"></div>
-
     <div class="footer">由「藤指美麗」提供占星香氣指徑</div>
   </div>
 
-  <audio id="cardSound" src="https://freesound.org/data/previews/567/567583_902047-lq.mp3" preload="auto"></audio>
-<script>
-  const params = new URLSearchParams(window.location.search);
-  const userId = params.get("userId");
-  const baseAstro = "https://script.google.com/macros/s/AKfycbwDpA8lPcvc4UXOKibzWd__83JyY_jKWzEVm1Z-9734KIJw3gdpqlbs78DZ6Rixdzjf0Q/exec";
-  const baseDraw = baseAstro;
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const userId = params.get("userId");
+    const api = "https://script.google.com/macros/s/AKfycbwDpA8lPcvc4UXOKibzWd__83JyY_jKWzEVm1Z-9734KIJw3gdpqlbs78DZ6Rixdzjf0Q/exec";
 
-  function fetchAstro() {
-    if (!userId) return;
-    fetch(`${baseAstro}?userId=${userId}&mode=json`)
-      .then(res => res.json())
-      .then(data => {
-        if (data && data.report) {
-          document.getElementById("astro").innerHTML = data.report.replace(/\n/g, "<br>");
-        } else {
-          document.getElementById("astro").innerHTML = "⚠️ 尚未產生今日運勢";
-        }
-      })
-      .catch(() => {
-        document.getElementById("astro").innerHTML = "📖 占卜中，請稍候...";
-      });
-  }
+    function fetchAstro() {
+      if (!userId) return;
+      fetch(`${api}?userId=${userId}&mode=json`)
+        .then(res => res.json())
+        .then(data => {
+          const astroEl = document.getElementById("astro");
+          if (data && data.report) {
+            astroEl.innerHTML = data.report.replace(/\n/g, "<br>");
+          } else {
+            astroEl.innerHTML = "⚠️ 尚未產生今日運勢";
+          }
+        })
+        .catch(() => {
+          document.getElementById("astro").innerHTML = "⚠️ 載入失敗，請稍後再試";
+        });
+    }
 
-  function drawTarot() {
-  if (!userId) return;
-  const tarotEl = document.getElementById("tarot");
-  tarotEl.classList.remove("animate-draw");
-  tarotEl.innerHTML = "🔮 正在抽牌...";
-  document.getElementById("cardSound").play(); // 播放音效
-
-  fetch(`${baseDraw}?userId=${userId}&mode=tarot`)
-    .then(res => res.json())
-    .then(data => {
-      if (data.content) {
-        let html = data.content.replace(/\n/g, "<br>");
-        if (data.image) {
-          html += `<br><br><img src="${data.image}" style="max-width:100%;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,0.2);">`;
-        }
-        tarotEl.innerHTML = html;
-        tarotEl.classList.add("animate-draw");
-      } else {
-        tarotEl.innerHTML = "⚠️ 尚未抽牌";
-      }
-    })
-    .catch(() => {
-      tarotEl.innerHTML = "⚠️ 抽牌失敗";
-    });
-}
-
-
-  function drawLucky() {
-    if (!userId) return;
-    const luckyEl = document.getElementById("lucky");
-    luckyEl.innerHTML = "☕ 抽籤中...";
-    fetch(`${baseDraw}?userId=${userId}&mode=lucky`)
-      .then(res => res.json())
-      .then(data => {
-       if (data.content) {
-        // 僅顯示文字內容，不解析圖片
-        luckyEl.innerHTML = data.content
-          .replace(/🖼️ 圖片：.*/, '') // 移除圖片行
-          .replace(/\n/g, "<br>");
-      } else {
-        luckyEl.innerHTML = "⚠️ 尚未抽到幸運籤";
-      }
-    })
-      .catch(() => {
-        luckyEl.innerHTML = "⚠️ 幸運節抽取失敗";
-      });
-  }
-
-  fetchAstro();
-</script>
+    fetchAstro();
+  </script>
 </body>
 </html>
