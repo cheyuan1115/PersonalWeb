@@ -72,12 +72,16 @@
     <hr style="margin: 2em 0;">
 
     <h2>💌 留言給藤指美麗</h2>
-    <form id="contactForm">
+    <form action="https://script.google.com/macros/s/AKfycbyiPM1VwAzAazP8jcElLO5pqUln5D_KmLV4sjYSz2E8WyLbwT6HglSgJq0GSb0ozW3_/exec"
+          method="POST"
+          target="hidden_iframe"
+          onsubmit="submitted=true; document.getElementById('formStatus').innerText='⏳ 傳送中，請稍候...';">
       <input type="text" name="name" placeholder="您的姓名" required />
       <input type="email" name="email" placeholder="您的 Email" required />
       <textarea name="message" rows="5" placeholder="請留下您想詢問的問題或合作想法..." required></textarea>
       <button class="btn" type="submit">送出留言</button>
     </form>
+    <iframe name="hidden_iframe" style="display:none;" onload="if(submitted) document.getElementById('formStatus').innerText='✅ 留言已送出，感謝你！';"></iframe>
     <div id="formStatus" class="result"></div>
 
     <div class="footer">由「藤指美麗」提供占星香氣指徑</div>
@@ -87,6 +91,7 @@
     const params = new URLSearchParams(window.location.search);
     const userId = params.get("userId");
     const api = "https://script.google.com/macros/s/AKfycbwDpA8lPcvc4UXOKibzWd__83JyY_jKWzEVm1Z-9734KIJw3gdpqlbs78DZ6Rixdzjf0Q/exec";
+    let submitted = false;
 
     function fetchAstro() {
       if (!userId) return;
@@ -106,24 +111,6 @@
     }
 
     fetchAstro();
-
-    document.getElementById("contactForm").addEventListener("submit", function(e) {
-      e.preventDefault();
-      const form = e.target;
-      const data = new URLSearchParams(new FormData(form));
-      fetch("https://script.google.com/macros/s/AKfycbyiPM1VwAzAazP8jcElLO5pqUln5D_KmLV4sjYSz2E8WyLbwT6HglSgJq0GSb0ozW3_/exec", {
-        method: "POST",
-        body: data
-      })
-        .then(res => res.text())
-        .then(msg => {
-          document.getElementById("formStatus").innerHTML = "✅ 留言已送出，感謝你！";
-          form.reset();
-        })
-        .catch(() => {
-          document.getElementById("formStatus").innerHTML = "⚠️ 發送失敗，請稍後再試";
-        });
-    });
   </script>
 </body>
 </html>
