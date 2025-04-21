@@ -87,7 +87,8 @@
     const params = new URLSearchParams(window.location.search);
     const userId = params.get("userId");
     const astroAPI = "https://script.google.com/macros/s/AKfycbwDpA8lPcvc4UXOKibzWd__83JyY_jKWzEVm1Z-9734KIJw3gdpqlbs78DZ6Rixdzjf0Q/exec";
-const contactAPI = "https://script.google.com/macros/s/AKfycbyiPM1VwAzAazP8jcElLO5pqUln5D_KmLV4sjYSz2E8WyLbwT6HglSgJq0GSb0ozW3_/exec";
+    const contactAPI = "https://script.google.com/macros/s/AKfycbwBg_fq9tIvDv4DDl7be91roityX34jJbJYB3zAJOo/exec";
+
     function fetchAstro() {
       if (!userId) return;
       fetch(`${astroAPI}?userId=${userId}&mode=json`)
@@ -109,35 +110,21 @@ const contactAPI = "https://script.google.com/macros/s/AKfycbyiPM1VwAzAazP8jcElL
       e.preventDefault();
       const form = e.target;
       const formData = new FormData(form);
-
-      // 使用 fetch API 發送 POST 請求
       fetch(contactAPI, {
         method: "POST",
-        body: formData, // 將 FormData 作為請求主體發送
-        //  headers: { // 某些情況下可能需要設定 Content-Type，但 FormData 通常會自動處理
-        //    'Content-Type': 'application/x-www-form-urlencoded'
-        //  }
+        body: formData
       })
-      .then(response => response.text()) // 取得回應的文字資料
-      .then(data => {
-        // 檢查 Apps Script 是否回傳 "成功"
-        if (data === "成功") {
+        .then(res => res.text())
+        .then(() => {
           document.getElementById("formStatus").innerHTML = "✅ 留言已送出，感謝你！";
-          form.reset(); // 清空表單
-        } else {
-          // 顯示 Apps Script 回傳的錯誤訊息
-          document.getElementById("formStatus").innerHTML = "⚠️ 發送失敗: " + data;
-          console.error("Apps Script 回傳錯誤:", data); // 將錯誤訊息記錄到 console，方便 debug
-        }
-      })
-      .catch(error => {
-        // 處理 fetch 請求失敗的情況
-        console.error("Fetch 請求失敗:", error); // 將錯誤訊息記錄到 console，方便 debug
-        document.getElementById("formStatus").innerHTML = "⚠️ 發送失敗，請稍後再試。" + error; // 顯示錯誤訊息
-      });
+          form.reset();
+        })
+        .catch(() => {
+          document.getElementById("formStatus").innerHTML = "⚠️ 發送失敗，請稍後再試";
+        });
     });
 
-    fetchAstro(); // 頁面載入時立即獲取星座運勢
+    fetchAstro();
   </script>
 </body>
 </html>
