@@ -110,21 +110,35 @@
       e.preventDefault();
       const form = e.target;
       const formData = new FormData(form);
+
+      // 使用 fetch API 發送 POST 請求
       fetch(contactAPI, {
         method: "POST",
-        body: formData
+        body: formData, // 將 FormData 作為請求主體發送
+        //  headers: { // 某些情況下可能需要設定 Content-Type，但 FormData 通常會自動處理
+        //    'Content-Type': 'application/x-www-form-urlencoded'
+        //  }
       })
-        .then(res => res.text())
-        .then(() => {
+      .then(response => response.text()) // 取得回應的文字資料
+      .then(data => {
+        // 檢查 Apps Script 是否回傳 "成功"
+        if (data === "成功") {
           document.getElementById("formStatus").innerHTML = "✅ 留言已送出，感謝你！";
-          form.reset();
-        })
-        .catch(() => {
-          document.getElementById("formStatus").innerHTML = "⚠️ 發送失敗，請稍後再試";
-        });
+          form.reset(); // 清空表單
+        } else {
+          // 顯示 Apps Script 回傳的錯誤訊息
+          document.getElementById("formStatus").innerHTML = "⚠️ 發送失敗: " + data;
+          console.error("Apps Script 回傳錯誤:", data); // 將錯誤訊息記錄到 console，方便 debug
+        }
+      })
+      .catch(error => {
+        // 處理 fetch 請求失敗的情況
+        console.error("Fetch 請求失敗:", error); // 將錯誤訊息記錄到 console，方便 debug
+        document.getElementById("formStatus").innerHTML = "⚠️ 發送失敗，請稍後再試。" + error; // 顯示錯誤訊息
+      });
     });
 
-    fetchAstro();
+    fetchAstro(); // 頁面載入時立即獲取星座運勢
   </script>
 </body>
 </html>
