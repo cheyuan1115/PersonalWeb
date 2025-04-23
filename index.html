@@ -76,6 +76,7 @@
       <input type="text" name="name" placeholder="您的姓名" required />
       <input type="email" name="email" placeholder="您的 Email" required />
       <textarea name="message" rows="5" placeholder="請留下您想詢問的問題或合作想法..." required></textarea>
+      <input type="hidden" name="source" value="表單">
       <button class="btn" type="submit">送出留言</button>
     </form>
     <div id="formStatus" class="result"></div>
@@ -87,7 +88,7 @@
     const params = new URLSearchParams(window.location.search);
     const userId = params.get("userId");
     const astroAPI = "https://script.google.com/macros/s/AKfycbwDpA8lPcvc4UXOKibzWd__83JyY_jKWzEVm1Z-9734KIJw3gdpqlbs78DZ6Rixdzjf0Q/exec";
-const contactAPI = "https://script.google.com/macros/s/AKfycbwDpA8lPcvc4UXOKibzWd__83JyY_jKWzEVm1Z-9734KIJw3gdpqlbs78DZ6Rixdzjf0Q/exec";
+    const contactAPI = "https://script.google.com/macros/s/AKfycbwDpA8lPcvc4UXOKibzWd__83JyY_jKWzEVm1Z-9734KIJw3gdpqlbs78DZ6Rixdzjf0Q/exec";
 
     function fetchAstro() {
       if (!userId) return;
